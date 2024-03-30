@@ -1,0 +1,307 @@
+&ACCESS RVP
+&REL 18
+&PARAM DISKPATH = KRC:\R1\Program\study
+DEF  drowing ( )
+;FOLD INI;%{PE}
+  ;FOLD BASISTECH INI
+    GLOBAL INTERRUPT DECL 3 WHEN $STOPMESS==TRUE DO IR_STOPM ( )
+    INTERRUPT ON 3 
+    BAS (#INITMOV,0 )
+  ;ENDFOLD (BASISTECH INI)
+  ;FOLD USER INI
+    ;Make your modifications here
+   
+  ;ENDFOLD (USER INI)
+;ENDFOLD (INI)
+
+;FOLD SPTP HOME Vel=50 % DEFAULT ;%{PE}
+;FOLD Parameters ;%{h}
+;Params IlfProvider=kukaroboter.basistech.inlineforms.movement.spline; Kuka.IsGlobalPoint=False; Kuka.PointName=HOME; Kuka.BlendingEnabled=False; Kuka.MoveDataPtpName=DEFAULT; Kuka.VelocityPtp=50; Kuka.VelocityFieldEnabled=True; Kuka.ColDetectFieldEnabled=True; Kuka.CurrentCDSetIndex=0; Kuka.MovementParameterFieldEnabled=True; IlfCommand=SPTP
+;ENDFOLD
+SPTP XHOME WITH $VEL_AXIS[1] = SVEL_JOINT(50.0), $TOOL = STOOL2(FHOME), $BASE = SBASE(FHOME.BASE_NO), $IPO_MODE = SIPO_MODE(FHOME.IPO_FRAME), $LOAD = SLOAD(FHOME.TOOL_NO), $ACC_AXIS[1] = SACC_JOINT(PDEFAULT), $APO = SAPO_PTP(PDEFAULT), $GEAR_JERK[1] = SGEAR_JERK(PDEFAULT), $COLLMON_TOL_PRO[1] = USE_CM_PRO_VALUES(0)
+;ENDFOLD
+
+RET = EKI_Init("EthernetAPI")
+RET = EKI_Open("EthernetAPI")
+CONT = TRUE
+CNT = 0
+;FOLD SPTP P13 Vel=100 % PDAT2 Tool[5]:drowing Base[5]:drowing_base ;%{PE}
+;FOLD Parameters ;%{h}
+;Params IlfProvider=kukaroboter.basistech.inlineforms.movement.spline; Kuka.IsGlobalPoint=False; Kuka.PointName=P13; Kuka.BlendingEnabled=False; Kuka.MoveDataPtpName=PDAT2; Kuka.VelocityPtp=100; Kuka.VelocityFieldEnabled=True; Kuka.ColDetectFieldEnabled=True; Kuka.CurrentCDSetIndex=0; Kuka.MovementParameterFieldEnabled=True; IlfCommand=SPTP
+;ENDFOLD
+;SPTP XP13 WITH $VEL_AXIS[1] = SVEL_JOINT(100.0), $TOOL = STOOL2(FP13), $BASE = SBASE(FP13.BASE_NO), $IPO_MODE = SIPO_MODE(FP13.IPO_FRAME), $LOAD = SLOAD(FP13.TOOL_NO), $ACC_AXIS[1] = SACC_JOINT(PPDAT2), $APO = SAPO_PTP(PPDAT2), $GEAR_JERK[1] = SGEAR_JERK(PPDAT2), $COLLMON_TOL_PRO[1] = USE_CM_PRO_VALUES(0)
+;ENDFOLD
+
+wait for $FLAG[1]
+
+CONT = TRUE
+WHILE CONT == TRUE
+   RET = EKI_SetBool("EthernetAPI", "Result/ReadyFlag", TRUE)
+   RET = EKI_Send("EthernetAPI", "Result/ReadyFlag")
+   
+   WAIT SEC 0.5
+   
+   RET = EKI_GetBool("EthernetAPI", "Command/Signal/STRT1", CONT)
+   thirteen_pts()
+   RET=EKI_ClearBuffer("EthernetAPI","Command/Signal/STRT1")
+   RET=EKI_ClearBuffer("EthernetAPI","Result/ReadyFlag")
+   CNT = CNT+1
+ENDWHILE
+
+CONT = TRUE
+WHILE CONT == TRUE
+   RET = EKI_SetBool("EthernetAPI", "Result/ReadyFlag", TRUE)
+   RET = EKI_Send("EthernetAPI", "Result/ReadyFlag")
+   IF CNT<30 THEN
+      WAIT SEC 0.1
+   ELSE
+      WAIT SEC 0.1
+   ENDIF
+   
+   RET = EKI_GetBool("EthernetAPI", "Command/Signal/STRT1", CONT)
+   three_pts()
+   RET=EKI_ClearBuffer("EthernetAPI","Command/Signal/STRT1")
+   RET=EKI_ClearBuffer("EthernetAPI","Result/ReadyFlag")
+   CNT = CNT+1
+ENDWHILE
+RET = EKI_SetBool("EthernetAPI", "Result/ReadyFlag", TRUE)
+RET = EKI_Send("EthernetAPI", "Result/ReadyFlag")
+;RET = EKI_GetBool("EthernetAPI", "Command/Signal/STRT1", CONT)
+WAIT SEC 0.1
+twelve_pts()
+RET=EKI_ClearBuffer("EthernetAPI","Command/Signal/STRT1")
+RET=EKI_ClearBuffer("EthernetAPI","Result/ReadyFlag")
+
+;FOLD SPTP HOME Vel=50 % DEFAULT ;%{PE}
+;FOLD Parameters ;%{h}
+;Params IlfProvider=kukaroboter.basistech.inlineforms.movement.spline; Kuka.IsGlobalPoint=False; Kuka.PointName=HOME; Kuka.BlendingEnabled=False; Kuka.MoveDataPtpName=DEFAULT; Kuka.VelocityPtp=50; Kuka.VelocityFieldEnabled=True; Kuka.ColDetectFieldEnabled=True; Kuka.CurrentCDSetIndex=0; Kuka.MovementParameterFieldEnabled=True; IlfCommand=SPTP
+;ENDFOLD
+SPTP XHOME WITH $VEL_AXIS[1] = SVEL_JOINT(50.0), $TOOL = STOOL2(FHOME), $BASE = SBASE(FHOME.BASE_NO), $IPO_MODE = SIPO_MODE(FHOME.IPO_FRAME), $LOAD = SLOAD(FHOME.TOOL_NO), $ACC_AXIS[1] = SACC_JOINT(PDEFAULT), $APO = SAPO_PTP(PDEFAULT), $GEAR_JERK[1] = SGEAR_JERK(PDEFAULT), $COLLMON_TOL_PRO[1] = USE_CM_PRO_VALUES(0)
+;ENDFOLD
+
+;RET = EKI_Clear("EthernetAPI")
+;RET = EKI_Close("EthernetAPI")
+
+END
+
+DEF thirteen_pts()
+   DECL POS point1, point2, point3, point4, point5, point6, point7, point8, point9, point10, point11, point12, point_high
+   point1 = {X 0, Y 0, Z 0, A -165, B 84, C 168}
+   point2 = {X 0, Y 0, Z 0, A -165, B 84, C 168}
+   point3 = {X 0, Y 0, Z 0, A -165, B 84, C 168}
+   point4 = {X 0, Y 0, Z 0, A -165, B 84, C 168}
+   point5 = {X 0, Y 0, Z 0, A -165, B 84, C 168}
+   point6 = {X 0, Y 0, Z 0, A -165, B 84, C 168}
+   point7 = {X 0, Y 0, Z 0, A -165, B 84, C 168}
+   point8 = {X 0, Y 0, Z 0, A -165, B 84, C 168}
+   point9 = {X 0, Y 0, Z 0, A -165, B 84, C 168}
+   point10 = {X 0, Y 0, Z 0, A -165, B 84, C 168}
+   point11 = {X 0, Y 0, Z 0, A -165, B 84, C 168}
+   point12 = {X 0, Y 0, Z 0, A -165, B 84, C 168}
+   
+   ;RET = EKI_SetBool("EthernetAPI", "Result/ReadyFlag", TRUE)
+   ;RET = EKI_Send("EthernetAPI", "Result/ReadyFlag")
+   ;WAIT SEC 1
+   
+   RET = EKI_GetReal("EthernetAPI", "Command/Coords/PTX1", point1.X)
+   RET = EKI_GetReal("EthernetAPI", "Command/Coords/PTY1", point1.Y)
+   point_high = point1
+   point_high.Z = 10
+   
+   SPTP point1 WITH $VEL_AXIS[1] = SVEL_JOINT(50.0), $TOOL = STOOL2(FP13), $BASE = SBASE(FP13.BASE_NO), $IPO_MODE = SIPO_MODE(FP13.IPO_FRAME), $LOAD = SLOAD(FP13.TOOL_NO), $ACC_AXIS[1] = SACC_JOINT(PPDAT2), $APO = SAPO_PTP(PPDAT2), $GEAR_JERK[1] = SGEAR_JERK(PPDAT2), $COLLMON_TOL_PRO[1] = USE_CM_PRO_VALUES(0)
+   
+   RET = EKI_GetReal("EthernetAPI", "Command/Coords/PTX2", point2.X)
+   RET = EKI_GetReal("EthernetAPI", "Command/Coords/PTY2", point2.Y)
+   RET = EKI_GetReal("EthernetAPI", "Command/Coords/PTX3", point3.X)
+   RET = EKI_GetReal("EthernetAPI", "Command/Coords/PTY3", point3.Y)
+   RET = EKI_GetReal("EthernetAPI", "Command/Coords/PTX4", point4.X)
+   RET = EKI_GetReal("EthernetAPI", "Command/Coords/PTY4", point4.Y)
+   RET = EKI_GetReal("EthernetAPI", "Command/Coords/PTX5", point5.X)
+   RET = EKI_GetReal("EthernetAPI", "Command/Coords/PTY5", point5.Y)
+   RET = EKI_GetReal("EthernetAPI", "Command/Coords/PTX6", point6.X)
+   RET = EKI_GetReal("EthernetAPI", "Command/Coords/PTY6", point6.Y)
+   RET = EKI_GetReal("EthernetAPI", "Command/Coords/PTX7", point7.X)
+   RET = EKI_GetReal("EthernetAPI", "Command/Coords/PTY7", point7.Y)
+   RET = EKI_GetReal("EthernetAPI", "Command/Coords/PTX8", point8.X)
+   RET = EKI_GetReal("EthernetAPI", "Command/Coords/PTY8", point8.Y)
+   RET = EKI_GetReal("EthernetAPI", "Command/Coords/PTX9", point9.X)
+   RET = EKI_GetReal("EthernetAPI", "Command/Coords/PTY9", point9.Y)
+   RET = EKI_GetReal("EthernetAPI", "Command/Coords/PTX10", point10.X)
+   RET = EKI_GetReal("EthernetAPI", "Command/Coords/PTY10", point10.Y)
+   RET = EKI_GetReal("EthernetAPI", "Command/Coords/PTX11", point11.X)
+   RET = EKI_GetReal("EthernetAPI", "Command/Coords/PTY11", point11.Y)
+   RET = EKI_GetReal("EthernetAPI", "Command/Coords/PTX12", point12.X)
+   RET = EKI_GetReal("EthernetAPI", "Command/Coords/PTY12", point12.Y)
+
+   SPLINE WITH $VEL = SVEL_CP(2.0, , LCPDAT3), $TOOL = STOOL2(FS1), $BASE = SBASE(FS1.BASE_NO), $IPO_MODE = SIPO_MODE(FS1.IPO_FRAME), $LOAD = SLOAD(FS1.TOOL_NO), $ACC = SACC_CP(LCPDAT3), $APO = SAPO(LCPDAT3), $ORI_TYPE = SORI_TYP(LCPDAT3), $CIRC_TYPE = SCIRC_TYP(LCPDAT3), $JERK = SJERK(LCPDAT3), $COLLMON_TOL_PRO[1] = USE_CM_PRO_VALUES(0)
+      SPL point2 WITH $VEL = SVEL_CP(2.0, , LCPDAT4), $ACC = SACC_CP(LCPDAT4), $ORI_TYPE = SORI_TYP(LCPDAT4), $EX_AX_IGNORE = S_EXAX_IGN(LCPDAT4), $JERK = SJERK(LCPDAT4), $COLLMON_TOL_PRO[1] = USE_CM_PRO_VALUES(-1)
+      SPL point3 WITH $VEL = SVEL_CP(2.0, , LCPDAT4), $ACC = SACC_CP(LCPDAT4), $ORI_TYPE = SORI_TYP(LCPDAT4), $EX_AX_IGNORE = S_EXAX_IGN(LCPDAT4), $JERK = SJERK(LCPDAT4), $COLLMON_TOL_PRO[1] = USE_CM_PRO_VALUES(-1)
+      SPL point4 WITH $VEL = SVEL_CP(2.0, , LCPDAT4), $ACC = SACC_CP(LCPDAT4), $ORI_TYPE = SORI_TYP(LCPDAT4), $EX_AX_IGNORE = S_EXAX_IGN(LCPDAT4), $JERK = SJERK(LCPDAT4), $COLLMON_TOL_PRO[1] = USE_CM_PRO_VALUES(-1)   
+      SPL point5 WITH $VEL = SVEL_CP(2.0, , LCPDAT4), $ACC = SACC_CP(LCPDAT4), $ORI_TYPE = SORI_TYP(LCPDAT4), $EX_AX_IGNORE = S_EXAX_IGN(LCPDAT4), $JERK = SJERK(LCPDAT4), $COLLMON_TOL_PRO[1] = USE_CM_PRO_VALUES(-1)   
+      SPL point6 WITH $VEL = SVEL_CP(2.0, , LCPDAT4), $ACC = SACC_CP(LCPDAT4), $ORI_TYPE = SORI_TYP(LCPDAT4), $EX_AX_IGNORE = S_EXAX_IGN(LCPDAT4), $JERK = SJERK(LCPDAT4), $COLLMON_TOL_PRO[1] = USE_CM_PRO_VALUES(-1)   
+      SPL point7 WITH $VEL = SVEL_CP(2.0, , LCPDAT4), $ACC = SACC_CP(LCPDAT4), $ORI_TYPE = SORI_TYP(LCPDAT4), $EX_AX_IGNORE = S_EXAX_IGN(LCPDAT4), $JERK = SJERK(LCPDAT4), $COLLMON_TOL_PRO[1] = USE_CM_PRO_VALUES(-1)
+      SPL point8 WITH $VEL = SVEL_CP(2.0, , LCPDAT4), $ACC = SACC_CP(LCPDAT4), $ORI_TYPE = SORI_TYP(LCPDAT4), $EX_AX_IGNORE = S_EXAX_IGN(LCPDAT4), $JERK = SJERK(LCPDAT4), $COLLMON_TOL_PRO[1] = USE_CM_PRO_VALUES(-1)
+      SPL point9 WITH $VEL = SVEL_CP(2.0, , LCPDAT4), $ACC = SACC_CP(LCPDAT4), $ORI_TYPE = SORI_TYP(LCPDAT4), $EX_AX_IGNORE = S_EXAX_IGN(LCPDAT4), $JERK = SJERK(LCPDAT4), $COLLMON_TOL_PRO[1] = USE_CM_PRO_VALUES(-1)
+      SPL point10 WITH $VEL = SVEL_CP(2.0, , LCPDAT4), $ACC = SACC_CP(LCPDAT4), $ORI_TYPE = SORI_TYP(LCPDAT4), $EX_AX_IGNORE = S_EXAX_IGN(LCPDAT4), $JERK = SJERK(LCPDAT4), $COLLMON_TOL_PRO[1] = USE_CM_PRO_VALUES(-1)
+      SPL point11 WITH $VEL = SVEL_CP(2.0, , LCPDAT4), $ACC = SACC_CP(LCPDAT4), $ORI_TYPE = SORI_TYP(LCPDAT4), $EX_AX_IGNORE = S_EXAX_IGN(LCPDAT4), $JERK = SJERK(LCPDAT4), $COLLMON_TOL_PRO[1] = USE_CM_PRO_VALUES(-1)
+      SPL point12 WITH $VEL = SVEL_CP(2.0, , LCPDAT4), $ACC = SACC_CP(LCPDAT4), $ORI_TYPE = SORI_TYP(LCPDAT4), $EX_AX_IGNORE = S_EXAX_IGN(LCPDAT4), $JERK = SJERK(LCPDAT4), $COLLMON_TOL_PRO[1] = USE_CM_PRO_VALUES(-1)
+      SPL point1 WITH $VEL = SVEL_CP(2.0, , LCPDAT4), $ACC = SACC_CP(LCPDAT4), $ORI_TYPE = SORI_TYP(LCPDAT4), $EX_AX_IGNORE = S_EXAX_IGN(LCPDAT4), $JERK = SJERK(LCPDAT4), $COLLMON_TOL_PRO[1] = USE_CM_PRO_VALUES(-1)   
+   ENDSPLINE
+  
+   SPTP point_high WITH $VEL_AXIS[1] = SVEL_JOINT(50.0), $TOOL = STOOL2(FP13), $BASE = SBASE(FP13.BASE_NO), $IPO_MODE = SIPO_MODE(FP13.IPO_FRAME), $LOAD = SLOAD(FP13.TOOL_NO), $ACC_AXIS[1] = SACC_JOINT(PPDAT2), $APO = SAPO_PTP(PPDAT2), $GEAR_JERK[1] = SGEAR_JERK(PPDAT2), $COLLMON_TOL_PRO[1] = USE_CM_PRO_VALUES(0)
+   
+   RET = EKI_ClearBuffer("EthernetAPI","Command/Coords/PTX1")
+   RET = EKI_ClearBuffer("EthernetAPI","Command/Coords/PTY1")
+   RET = EKI_ClearBuffer("EthernetAPI","Command/Coords/PTX2")
+   RET = EKI_ClearBuffer("EthernetAPI","Command/Coords/PTY2")
+   RET = EKI_ClearBuffer("EthernetAPI","Command/Coords/PTX3")
+   RET = EKI_ClearBuffer("EthernetAPI","Command/Coords/PTY3")
+   RET = EKI_ClearBuffer("EthernetAPI", "Command/Coords/PTX4")
+   RET = EKI_ClearBuffer("EthernetAPI", "Command/Coords/PTY4")
+   RET = EKI_ClearBuffer("EthernetAPI", "Command/Coords/PTX5")
+   RET = EKI_ClearBuffer("EthernetAPI", "Command/Coords/PTY5")
+   RET = EKI_ClearBuffer("EthernetAPI", "Command/Coords/PTX6")
+   RET = EKI_ClearBuffer("EthernetAPI", "Command/Coords/PTY6")
+   RET = EKI_ClearBuffer("EthernetAPI", "Command/Coords/PTX7")
+   RET = EKI_ClearBuffer("EthernetAPI", "Command/Coords/PTY7")
+   RET = EKI_ClearBuffer("EthernetAPI", "Command/Coords/PTX8")
+   RET = EKI_ClearBuffer("EthernetAPI", "Command/Coords/PTY8")
+   RET = EKI_ClearBuffer("EthernetAPI", "Command/Coords/PTX9")
+   RET = EKI_ClearBuffer("EthernetAPI", "Command/Coords/PTY9")
+   RET = EKI_ClearBuffer("EthernetAPI", "Command/Coords/PTX10")
+   RET = EKI_ClearBuffer("EthernetAPI", "Command/Coords/PTY10")
+   RET = EKI_ClearBuffer("EthernetAPI", "Command/Coords/PTX11")
+   RET = EKI_ClearBuffer("EthernetAPI", "Command/Coords/PTY11")
+   RET = EKI_ClearBuffer("EthernetAPI", "Command/Coords/PTX12")
+   RET = EKI_ClearBuffer("EthernetAPI", "Command/Coords/PTY12")
+END
+
+
+DEF three_pts()
+   DECL POS point1, point2, point3, point_high
+   point1 = {X 0, Y 0, Z 0, A -165, B 84, C 168}
+   point2 = {X 0, Y 0, Z 0, A -165, B 84, C 168}
+   point3 = {X 0, Y 0, Z 0, A -165, B 84, C 168}
+   
+   ;RET = EKI_SetBool("EthernetAPI", "Result/ReadyFlag", TRUE)
+   ;RET = EKI_Send("EthernetAPI", "Result/ReadyFlag")
+   
+   ;WAIT SEC 1
+   
+   RET = EKI_GetReal("EthernetAPI", "Command/Coords/PTX1", point1.X)
+   RET = EKI_GetReal("EthernetAPI", "Command/Coords/PTY1", point1.Y)
+   point_high = point1
+   point_high.Z = 15
+   
+   SPTP point1 WITH $VEL_AXIS[1] = SVEL_JOINT(100.0), $TOOL = STOOL2(FP13), $BASE = SBASE(FP13.BASE_NO), $IPO_MODE = SIPO_MODE(FP13.IPO_FRAME), $LOAD = SLOAD(FP13.TOOL_NO), $ACC_AXIS[1] = SACC_JOINT(PPDAT2), $APO = SAPO_PTP(PPDAT2), $GEAR_JERK[1] = SGEAR_JERK(PPDAT2), $COLLMON_TOL_PRO[1] = USE_CM_PRO_VALUES(0)
+   
+   RET = EKI_GetReal("EthernetAPI", "Command/Coords/PTX2", point2.X)
+   RET = EKI_GetReal("EthernetAPI", "Command/Coords/PTY2", point2.Y)
+   RET = EKI_GetReal("EthernetAPI", "Command/Coords/PTX3", point3.X)
+   RET = EKI_GetReal("EthernetAPI", "Command/Coords/PTY3", point3.Y)
+  
+   SPLINE WITH $VEL = SVEL_CP(2.0, , LCPDAT3), $TOOL = STOOL2(FS1), $BASE = SBASE(FS1.BASE_NO), $IPO_MODE = SIPO_MODE(FS1.IPO_FRAME), $LOAD = SLOAD(FS1.TOOL_NO), $ACC = SACC_CP(LCPDAT3), $APO = SAPO(LCPDAT3), $ORI_TYPE = SORI_TYP(LCPDAT3), $CIRC_TYPE = SCIRC_TYP(LCPDAT3), $JERK = SJERK(LCPDAT3), $COLLMON_TOL_PRO[1] = USE_CM_PRO_VALUES(0)
+      SPL point2 WITH $VEL = SVEL_CP(2.0, , LCPDAT4), $ACC = SACC_CP(LCPDAT4), $ORI_TYPE = SORI_TYP(LCPDAT4), $EX_AX_IGNORE = S_EXAX_IGN(LCPDAT4), $JERK = SJERK(LCPDAT4), $COLLMON_TOL_PRO[1] = USE_CM_PRO_VALUES(-1)
+      SPL point3 WITH $VEL = SVEL_CP(2.0, , LCPDAT4), $ACC = SACC_CP(LCPDAT4), $ORI_TYPE = SORI_TYP(LCPDAT4), $EX_AX_IGNORE = S_EXAX_IGN(LCPDAT4), $JERK = SJERK(LCPDAT4), $COLLMON_TOL_PRO[1] = USE_CM_PRO_VALUES(-1)
+   ENDSPLINE
+  
+   SLIN point_high WITH $VEL_AXIS[1] = SVEL_JOINT(100.0), $TOOL = STOOL2(FP13), $BASE = SBASE(FP13.BASE_NO), $IPO_MODE = SIPO_MODE(FP13.IPO_FRAME), $LOAD = SLOAD(FP13.TOOL_NO), $ACC_AXIS[1] = SACC_JOINT(PPDAT2), $APO = SAPO_PTP(PPDAT2), $GEAR_JERK[1] = SGEAR_JERK(PPDAT2), $COLLMON_TOL_PRO[1] = USE_CM_PRO_VALUES(0)
+
+   RET=EKI_ClearBuffer("EthernetAPI","Command/Coords/PTX1")
+   RET=EKI_ClearBuffer("EthernetAPI","Command/Coords/PTY1")
+   RET=EKI_ClearBuffer("EthernetAPI","Command/Coords/PTX2")
+   RET=EKI_ClearBuffer("EthernetAPI","Command/Coords/PTY2")
+   RET=EKI_ClearBuffer("EthernetAPI","Command/Coords/PTX3")
+   RET=EKI_ClearBuffer("EthernetAPI","Command/Coords/PTY3")
+END
+
+DEF twelve_pts()
+   DECL POS point1, point2, point3, point4, point5, point6, point7, point8, point9, point10, point11, point12, point_high
+   point1 = {X 0, Y 0, Z 0, A -165, B 84, C 168}
+   point2 = {X 0, Y 0, Z 0, A -165, B 84, C 168}
+   point3 = {X 0, Y 0, Z 0, A -165, B 84, C 168}
+   point4 = {X 0, Y 0, Z 0, A -165, B 84, C 168}
+   point5 = {X 0, Y 0, Z 0, A -165, B 84, C 168}
+   point6 = {X 0, Y 0, Z 0, A -165, B 84, C 168}
+   point7 = {X 0, Y 0, Z 0, A -165, B 84, C 168}
+   point8 = {X 0, Y 0, Z 0, A -165, B 84, C 168}
+   point9 = {X 0, Y 0, Z 0, A -165, B 84, C 168}
+   point10 = {X 0, Y 0, Z 0, A -165, B 84, C 168}
+   point11 = {X 0, Y 0, Z 0, A -165, B 84, C 168}
+   point12 = {X 0, Y 0, Z 0, A -165, B 84, C 168}
+   
+   ;RET = EKI_SetBool("EthernetAPI", "Result/ReadyFlag", TRUE)
+   ;RET = EKI_Send("EthernetAPI", "Result/ReadyFlag")
+   ;WAIT SEC 1
+   
+   RET = EKI_GetReal("EthernetAPI", "Command/Coords/PTX1", point1.X)
+   RET = EKI_GetReal("EthernetAPI", "Command/Coords/PTY1", point1.Y)
+   point_high = point1
+   point_high.Z = 10
+   
+   SPTP point1 WITH $VEL_AXIS[1] = SVEL_JOINT(50.0), $TOOL = STOOL2(FP13), $BASE = SBASE(FP13.BASE_NO), $IPO_MODE = SIPO_MODE(FP13.IPO_FRAME), $LOAD = SLOAD(FP13.TOOL_NO), $ACC_AXIS[1] = SACC_JOINT(PPDAT2), $APO = SAPO_PTP(PPDAT2), $GEAR_JERK[1] = SGEAR_JERK(PPDAT2), $COLLMON_TOL_PRO[1] = USE_CM_PRO_VALUES(0)
+   
+   RET = EKI_GetReal("EthernetAPI", "Command/Coords/PTX2", point2.X)
+   RET = EKI_GetReal("EthernetAPI", "Command/Coords/PTY2", point2.Y)
+   RET = EKI_GetReal("EthernetAPI", "Command/Coords/PTX3", point3.X)
+   RET = EKI_GetReal("EthernetAPI", "Command/Coords/PTY3", point3.Y)
+   RET = EKI_GetReal("EthernetAPI", "Command/Coords/PTX4", point4.X)
+   RET = EKI_GetReal("EthernetAPI", "Command/Coords/PTY4", point4.Y)
+   RET = EKI_GetReal("EthernetAPI", "Command/Coords/PTX5", point5.X)
+   RET = EKI_GetReal("EthernetAPI", "Command/Coords/PTY5", point5.Y)
+   RET = EKI_GetReal("EthernetAPI", "Command/Coords/PTX6", point6.X)
+   RET = EKI_GetReal("EthernetAPI", "Command/Coords/PTY6", point6.Y)
+   RET = EKI_GetReal("EthernetAPI", "Command/Coords/PTX7", point7.X)
+   RET = EKI_GetReal("EthernetAPI", "Command/Coords/PTY7", point7.Y)
+   RET = EKI_GetReal("EthernetAPI", "Command/Coords/PTX8", point8.X)
+   RET = EKI_GetReal("EthernetAPI", "Command/Coords/PTY8", point8.Y)
+   RET = EKI_GetReal("EthernetAPI", "Command/Coords/PTX9", point9.X)
+   RET = EKI_GetReal("EthernetAPI", "Command/Coords/PTY9", point9.Y)
+   RET = EKI_GetReal("EthernetAPI", "Command/Coords/PTX10", point10.X)
+   RET = EKI_GetReal("EthernetAPI", "Command/Coords/PTY10", point10.Y)
+   RET = EKI_GetReal("EthernetAPI", "Command/Coords/PTX11", point11.X)
+   RET = EKI_GetReal("EthernetAPI", "Command/Coords/PTY11", point11.Y)
+   RET = EKI_GetReal("EthernetAPI", "Command/Coords/PTX12", point12.X)
+   RET = EKI_GetReal("EthernetAPI", "Command/Coords/PTY12", point12.Y)
+
+   SPLINE WITH $VEL = SVEL_CP(2.0, , LCPDAT3), $TOOL = STOOL2(FS1), $BASE = SBASE(FS1.BASE_NO), $IPO_MODE = SIPO_MODE(FS1.IPO_FRAME), $LOAD = SLOAD(FS1.TOOL_NO), $ACC = SACC_CP(LCPDAT3), $APO = SAPO(LCPDAT3), $ORI_TYPE = SORI_TYP(LCPDAT3), $CIRC_TYPE = SCIRC_TYP(LCPDAT3), $JERK = SJERK(LCPDAT3), $COLLMON_TOL_PRO[1] = USE_CM_PRO_VALUES(0)
+      SPL point2 WITH $VEL = SVEL_CP(2.0, , LCPDAT4), $ACC = SACC_CP(LCPDAT4), $ORI_TYPE = SORI_TYP(LCPDAT4), $EX_AX_IGNORE = S_EXAX_IGN(LCPDAT4), $JERK = SJERK(LCPDAT4), $COLLMON_TOL_PRO[1] = USE_CM_PRO_VALUES(-1)
+      SPL point3 WITH $VEL = SVEL_CP(2.0, , LCPDAT4), $ACC = SACC_CP(LCPDAT4), $ORI_TYPE = SORI_TYP(LCPDAT4), $EX_AX_IGNORE = S_EXAX_IGN(LCPDAT4), $JERK = SJERK(LCPDAT4), $COLLMON_TOL_PRO[1] = USE_CM_PRO_VALUES(-1)
+      SPL point4 WITH $VEL = SVEL_CP(2.0, , LCPDAT4), $ACC = SACC_CP(LCPDAT4), $ORI_TYPE = SORI_TYP(LCPDAT4), $EX_AX_IGNORE = S_EXAX_IGN(LCPDAT4), $JERK = SJERK(LCPDAT4), $COLLMON_TOL_PRO[1] = USE_CM_PRO_VALUES(-1)   
+      SPL point5 WITH $VEL = SVEL_CP(2.0, , LCPDAT4), $ACC = SACC_CP(LCPDAT4), $ORI_TYPE = SORI_TYP(LCPDAT4), $EX_AX_IGNORE = S_EXAX_IGN(LCPDAT4), $JERK = SJERK(LCPDAT4), $COLLMON_TOL_PRO[1] = USE_CM_PRO_VALUES(-1)   
+      SPL point6 WITH $VEL = SVEL_CP(2.0, , LCPDAT4), $ACC = SACC_CP(LCPDAT4), $ORI_TYPE = SORI_TYP(LCPDAT4), $EX_AX_IGNORE = S_EXAX_IGN(LCPDAT4), $JERK = SJERK(LCPDAT4), $COLLMON_TOL_PRO[1] = USE_CM_PRO_VALUES(-1)   
+      SPL point7 WITH $VEL = SVEL_CP(2.0, , LCPDAT4), $ACC = SACC_CP(LCPDAT4), $ORI_TYPE = SORI_TYP(LCPDAT4), $EX_AX_IGNORE = S_EXAX_IGN(LCPDAT4), $JERK = SJERK(LCPDAT4), $COLLMON_TOL_PRO[1] = USE_CM_PRO_VALUES(-1)
+      SPL point8 WITH $VEL = SVEL_CP(2.0, , LCPDAT4), $ACC = SACC_CP(LCPDAT4), $ORI_TYPE = SORI_TYP(LCPDAT4), $EX_AX_IGNORE = S_EXAX_IGN(LCPDAT4), $JERK = SJERK(LCPDAT4), $COLLMON_TOL_PRO[1] = USE_CM_PRO_VALUES(-1)
+      SPL point9 WITH $VEL = SVEL_CP(2.0, , LCPDAT4), $ACC = SACC_CP(LCPDAT4), $ORI_TYPE = SORI_TYP(LCPDAT4), $EX_AX_IGNORE = S_EXAX_IGN(LCPDAT4), $JERK = SJERK(LCPDAT4), $COLLMON_TOL_PRO[1] = USE_CM_PRO_VALUES(-1)
+      SPL point10 WITH $VEL = SVEL_CP(2.0, , LCPDAT4), $ACC = SACC_CP(LCPDAT4), $ORI_TYPE = SORI_TYP(LCPDAT4), $EX_AX_IGNORE = S_EXAX_IGN(LCPDAT4), $JERK = SJERK(LCPDAT4), $COLLMON_TOL_PRO[1] = USE_CM_PRO_VALUES(-1)
+      SPL point11 WITH $VEL = SVEL_CP(2.0, , LCPDAT4), $ACC = SACC_CP(LCPDAT4), $ORI_TYPE = SORI_TYP(LCPDAT4), $EX_AX_IGNORE = S_EXAX_IGN(LCPDAT4), $JERK = SJERK(LCPDAT4), $COLLMON_TOL_PRO[1] = USE_CM_PRO_VALUES(-1)
+      SPL point12 WITH $VEL = SVEL_CP(2.0, , LCPDAT4), $ACC = SACC_CP(LCPDAT4), $ORI_TYPE = SORI_TYP(LCPDAT4), $EX_AX_IGNORE = S_EXAX_IGN(LCPDAT4), $JERK = SJERK(LCPDAT4), $COLLMON_TOL_PRO[1] = USE_CM_PRO_VALUES(-1)
+   ENDSPLINE
+  
+   SPTP point_high WITH $VEL_AXIS[1] = SVEL_JOINT(50.0), $TOOL = STOOL2(FP13), $BASE = SBASE(FP13.BASE_NO), $IPO_MODE = SIPO_MODE(FP13.IPO_FRAME), $LOAD = SLOAD(FP13.TOOL_NO), $ACC_AXIS[1] = SACC_JOINT(PPDAT2), $APO = SAPO_PTP(PPDAT2), $GEAR_JERK[1] = SGEAR_JERK(PPDAT2), $COLLMON_TOL_PRO[1] = USE_CM_PRO_VALUES(0)
+   
+   RET = EKI_ClearBuffer("EthernetAPI","Command/Coords/PTX1")
+   RET = EKI_ClearBuffer("EthernetAPI","Command/Coords/PTY1")
+   RET = EKI_ClearBuffer("EthernetAPI","Command/Coords/PTX2")
+   RET = EKI_ClearBuffer("EthernetAPI","Command/Coords/PTY2")
+   RET = EKI_ClearBuffer("EthernetAPI","Command/Coords/PTX3")
+   RET = EKI_ClearBuffer("EthernetAPI","Command/Coords/PTY3")
+   RET = EKI_ClearBuffer("EthernetAPI", "Command/Coords/PTX4")
+   RET = EKI_ClearBuffer("EthernetAPI", "Command/Coords/PTY4")
+   RET = EKI_ClearBuffer("EthernetAPI", "Command/Coords/PTX5")
+   RET = EKI_ClearBuffer("EthernetAPI", "Command/Coords/PTY5")
+   RET = EKI_ClearBuffer("EthernetAPI", "Command/Coords/PTX6")
+   RET = EKI_ClearBuffer("EthernetAPI", "Command/Coords/PTY6")
+   RET = EKI_ClearBuffer("EthernetAPI", "Command/Coords/PTX7")
+   RET = EKI_ClearBuffer("EthernetAPI", "Command/Coords/PTY7")
+   RET = EKI_ClearBuffer("EthernetAPI", "Command/Coords/PTX8")
+   RET = EKI_ClearBuffer("EthernetAPI", "Command/Coords/PTY8")
+   RET = EKI_ClearBuffer("EthernetAPI", "Command/Coords/PTX9")
+   RET = EKI_ClearBuffer("EthernetAPI", "Command/Coords/PTY9")
+   RET = EKI_ClearBuffer("EthernetAPI", "Command/Coords/PTX10")
+   RET = EKI_ClearBuffer("EthernetAPI", "Command/Coords/PTY10")
+   RET = EKI_ClearBuffer("EthernetAPI", "Command/Coords/PTX11")
+   RET = EKI_ClearBuffer("EthernetAPI", "Command/Coords/PTY11")
+   RET = EKI_ClearBuffer("EthernetAPI", "Command/Coords/PTX12")
+   RET = EKI_ClearBuffer("EthernetAPI", "Command/Coords/PTY12")
+END

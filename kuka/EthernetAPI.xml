@@ -1,0 +1,62 @@
+<ETHERNETKRL>
+  <CONFIGURATION>
+    <EXTERNAL>
+      <TYPE>Client</TYPE>
+    </EXTERNAL>
+    <INTERNAL>
+      <IP>x.x.x.x</IP>
+      <PORT>54610</PORT>
+      <BUFFERING Mode="LIFO" Limit="512"/>
+      <BUFFSIZE Limit="60000"/>
+      <ALIVE Set_Flag="1"/>
+    </INTERNAL>
+  </CONFIGURATION>
+  <RECEIVE>
+    <XML>
+      <ELEMENT Tag="Command/Signal/STRT1" Type="BOOL"/>
+      
+      <ELEMENT Tag="Command/Coords/PTX1" Type="REAL"/>
+      <ELEMENT Tag="Command/Coords/PTY1" Type="REAL"/>
+      
+      <ELEMENT Tag="Command/Coords/PTX2" Type="REAL"/>
+      <ELEMENT Tag="Command/Coords/PTY2" Type="REAL"/>
+      
+      <ELEMENT Tag="Command/Coords/PTX3" Type="REAL"/>
+      <ELEMENT Tag="Command/Coords/PTY3" Type="REAL"/>
+      
+      <ELEMENT Tag="Command/Coords/PTX4" Type="REAL"/>
+      <ELEMENT Tag="Command/Coords/PTY4" Type="REAL"/>
+      
+      <ELEMENT Tag="Command/Coords/PTX5" Type="REAL"/>
+      <ELEMENT Tag="Command/Coords/PTY5" Type="REAL"/>
+      
+      <ELEMENT Tag="Command/Coords/PTX6" Type="REAL"/>
+      <ELEMENT Tag="Command/Coords/PTY6" Type="REAL"/>
+      
+      <ELEMENT Tag="Command/Coords/PTX7" Type="REAL"/>
+      <ELEMENT Tag="Command/Coords/PTY7" Type="REAL"/>
+      
+      <ELEMENT Tag="Command/Coords/PTX8" Type="REAL"/>
+      <ELEMENT Tag="Command/Coords/PTY8" Type="REAL"/>
+      
+      <ELEMENT Tag="Command/Coords/PTX9" Type="REAL"/>
+      <ELEMENT Tag="Command/Coords/PTY9" Type="REAL"/>
+      
+      <ELEMENT Tag="Command/Coords/PTX10" Type="REAL"/>
+      <ELEMENT Tag="Command/Coords/PTY10" Type="REAL"/>
+      
+      <ELEMENT Tag="Command/Coords/PTX11" Type="REAL"/>
+      <ELEMENT Tag="Command/Coords/PTY11" Type="REAL"/>
+      
+      <ELEMENT Tag="Command/Coords/PTX12" Type="REAL"/>
+      <ELEMENT Tag="Command/Coords/PTY12" Type="REAL"/>
+    </XML>
+  </RECEIVE>
+  <SEND>
+    <XML>
+      <ELEMENT Tag="Result/ReadyFlag"/>	
+      <ELEMENT Tag="Result/FinishFlag1"/> 
+      <ELEMENT Tag="Result/FinishFlag2"/>      
+    </XML>
+  </SEND>
+</ETHERNETKRL>
